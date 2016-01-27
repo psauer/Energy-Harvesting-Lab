@@ -8,6 +8,8 @@
 #ifndef UART_H_
 #define UART_H_
 
-
+void init_uart(void);
+void uartPutChar(char c);
+void uartPutString(char * InputBufferPtr, uint32_t NumBytes);
 
 #endif /* UART_H_ */
