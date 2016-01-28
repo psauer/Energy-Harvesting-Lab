@@ -39,27 +39,24 @@ void main(void) {
   BCSCTL1 = CALBC1_1MHZ;   // Set range
   DCOCTL  = CALDCO_1MHZ;   // Set DCO step + modulation
 
+  /*
   // set up GPIO pins P1.0 & P1.6 as output pins
   P1DIR |= LED1 | LED2;
   // Setting P1.0 & P1.6 to low
-  P1OUT &= ~(LED1 | LED2);
+  P1OUT &= ~(LED1 | LED2);*/
 
   //init functions
-  inerDelay_us(100);
   init_uart();
-  inerDelay_us(100);
   init_spi();
+  init_rfModule();
 
   //_BIS_SR(LPM0_bits | GIE); // enable interrupts & set to low power
   _BIS_SR(GIE);          // enable interrupts
 
   uint8_t out_buffer[2];
 
-  //writing to reg
-  //buffer = SPI_write_reg(WRITE_REG | CONFIG, 0x08);
-
   // read response
-  SPI_Read(CONFIG, out_buffer);
+  SPI_read(CONFIG, out_buffer);
 
   uartPutString("status: ", 9);
   print_binary(out_buffer[0]);

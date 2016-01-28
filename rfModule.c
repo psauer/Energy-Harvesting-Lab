@@ -41,11 +41,8 @@
 #define SET_CS_HIGH P1OUT |= CS;
 #define SET_CS_LOW P1OUT &= ~CS;
 
-#define SET_SIMO_HIGH P1OUT |= SIMO;
-#define SET_SIMO_LOW P1OUT &= ~SIMO;
-
-#define SET_SCLK_HIGH P1OUT |= SCLK;
-#define SET_SCLK_LOW P1OUT &= ~SCLK;
+#define SET_CE_HIGH P1OUT |= CE;
+#define SET_CE_LOW P1OUT &= ~CE;
 
 #define SCLK    BIT5 // P1.5: SPI Clock
 #define SOMI    BIT6 // P1.6: SPI SOMI (Slave Out, Master In)
@@ -53,54 +50,39 @@
 #define CE      BIT4 // P1.4: CE (Chip Enable)
 #define CS      BIT3 // P1.3: CS (Chip Select)
 
-//=============================RF24l01 init config=====================================
-char  TX_ADDRESS[TX_ADR_WIDTH]= {0x34,0x43,0x10,0x10,0x01}; //TX address
-char  RX_ADDRESS[RX_ADR_WIDTH]= {0x34,0x43,0x10,0x10,0x01}; //RX address
-char  sta;
-char  tf, RxBuf[32],TxBuf[32];
-
-static void inerDelay_us(int n) {
-  for(;n>0;n--);
-}
-
 void init_spi(void) {
-  /**
-   * From TIs users manual
-   *
-     * The recommended USCI initialization/re-configuration process is:
-   * 1. Set UCSWRST (BIS.B #UCSWRST,&UCxCTL1)
-   * 2. Initialize all USCI registers with UCSWRST=1 (including UCxCTL1)
-   * 3. Configure ports
-   * 4. Clear UCSWRST via software (BIC.B #UCSWRST,&UCxCTL1)
-   * 5. Enable interrupts (optional) via UCxRXIE and/or UCxTXIE
-   */
 
-  // (1)
+  // Set UCSWRST
   UCB0CTL1 = UCSWRST;
 
-  // (2)
+  // configuring GPIO pins
   P1DIR  |= CS | CE; //setting GPIO CS and CE pins to output
-  P1OUT  |= CS | CE; //setting CS to high
+  P1OUT  |= CS; //setting CS to high
   P1SEL  |= SOMI + SIMO + SCLK;
   P1SEL2 |= SOMI + SIMO + SCLK;
 
-  // (3) 3-pin SPI Mode, 8-bit data, SPI master,
+  // configuring SPI: 3-pin SPI Mode, 8-bit data, SPI master,
   UCB0CTL0 |= UCCKPH + UCMSB + UCMST + UCSYNC;
   UCB0CTL1 |= UCSSEL_2;   // SMCLK
   //UCB0STAT |= UCLISTEN; //enabling loopback mode for testing
 
-  // (4)
+  // starting state machine
   UCB0CTL1 &= ~UCSWRST;
-
 }
 
-/**************************************************
-Function: SPI_RW();
+void init_rfModule (void) {
+  uint8_t status, byte;
+//TODO check status byte to see if == TX_FULL
+  //setting power up to 1
+  byte = (1 << EN_CRC) | (1 << PWR_UP);
+  status = SPI_write_reg(WRITE_REG | CONFIG, byte);
+  //setting RF power to be -18dBm, Data rate to 2Mbps
+  byte = (1 << RF_PWR_L) | (1 << RF_PWR_H) | (1 << LNA_HCURR) | (1 << RF_DR);
+  status = SPI_write_reg(WRITE_REG | RF_SETUP, byte);
+  //setting the TX - RX channel
+  status = SPI_write_reg(WRITE_REG | RF_CH, 0x08);//choosing channel 0x08
+}
 
-Description:
-  Writes one byte to nRF24L01, and return the byte read
-  from nRF24L01 during write, according to SPI protocol  */
-/**************************************************/
 uint8_t SPI_RW(uint8_t data) {
   UCB0TXBUF = data;
 
@@ -112,23 +94,16 @@ uint8_t SPI_RW(uint8_t data) {
 
 uint8_t SPI_write_reg(uint8_t reg, uint8_t value) {
   uint8_t status;
-  SET_CS_LOW;                   // CSN low, init SPI transaction
+  SET_CS_LOW;                   // CS low, init SPI transaction
 
   status = SPI_RW(reg);      // select register
   SPI_RW(value);             // ..and write value to it..
 
-  SET_CS_HIGH;                   // CSN high again
+  SET_CS_HIGH;                   // CS high again
   return(status);            // return nRF24L01 status uchar
 }
 
-/**************************************************
-Function: SPI_Read();
-
-Description:
-  Read one byte from nRF24L01 register, 'reg'  */
-/**************************************************/
-void SPI_Read(uint8_t reg, uint8_t * output_buffer) {
-  uint8_t reg_val;
+void SPI_read(uint8_t reg, uint8_t * output_buffer) {
 
   SET_CS_LOW;           // CSN low, initialize SPI communication...
 
@@ -138,3 +113,15 @@ void SPI_Read(uint8_t reg, uint8_t * output_buffer) {
   SET_CS_HIGH;         // CSN high, terminate SPI communication
 
 }
+
+void transmit_byte (uint8_t data) {
+  uint8_t status;
+  SET_CE_LOW
+  status = SPI_write_reg(WR_TX_PLOAD, data);
+
+  SET_CE_HIGH
+  //TODO insert wait here. min 10 us or interupt checking
+  SET_CE_LOW
+
+}
+

@@ -19,7 +19,7 @@ void init_uart(void) {
   UCA0BR1 = 0;                              // 1MHz 9600
   UCA0MCTL = UCBRS0;                        // Modulation UCBRSx = 1
   UCA0CTL1 &= ~UCSWRST;                     // Initialize USCI state machine
-  //IE2 |= UCA0RXIE; // enable RX interrupts
+  IE2 |= UCA0RXIE; // enable RX interrupts
 }
 
 void uartPutChar(uint8_t c) {
@@ -34,7 +34,6 @@ void uartPutString(char * InputBufferPtr, uint32_t NumBytes) {
     uartPutChar(InputBufferPtr[0]);
     InputBufferPtr++;
   }
-  P1OUT ^= LED2;//toggle LED2
 }
 
 //RX interrupt routine
@@ -42,7 +41,6 @@ void uartPutString(char * InputBufferPtr, uint32_t NumBytes) {
 __interrupt void ReceiveInterrupt(void) {
   volatile char buffer = UCA0RXBUF;
   uartPutChar(buffer);
-  P1OUT ^= LED1;//toggle LED1
 }
 
 

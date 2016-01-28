@@ -53,9 +53,23 @@
 #define RX_PW_P5        0x16  // 'RX payload width, pipe5' register address
 #define FIFO_STATUS     0x17  // 'FIFO Status Register' register address
 
+/// RF_SETUP register bits
+#define RF_DR           3
+#define RF_PWR_H        2
+#define RF_PWR_L        1
+#define LNA_HCURR       0
+ // CONFIG register bits
+#define EN_CRC          3
+#define PWR_UP          1
+ // STATUS register bits
+#define TX_FULL         0
+
 
 void init_spi(void);
-void SPI_Read(uint8_t reg, uint8_t * output_buffer);
+void init_rfModule (void);
+void SPI_read(uint8_t reg, uint8_t * output_buffer);
 uint8_t SPI_write_reg(uint8_t reg, uint8_t value);
+void transmit_byte (uint8_t data);
+
 
 #endif /* RFMODULE_H_ */
