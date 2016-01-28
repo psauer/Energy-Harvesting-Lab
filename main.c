@@ -5,15 +5,31 @@
  *      Author: paul
  */
 
-
-//Demo app to blink the red LED (LED1) on the TI Launchpad
-//which is attached to P1.0
-//The green LED(LED2) is connected to P1.6
-
 #include <msp430g2553.h>
 #include <inttypes.h>
 #include "uart.h"
 #include "config.h"
+#include "rfModule.h"
+
+//******************************************************************************************
+// Delay for about n us
+//******************************************************************************************
+static void inerDelay_us(int n) {
+  for(;n>0;n--);
+}
+
+static void print_binary(uint8_t n) {
+  int i;
+  uint8_t mask = 1 << 7;
+
+  for(i = 0; i < 8; i++) {
+       if((n & (mask >> i)) != 0) {
+         uartPutChar('1');
+       } else {
+         uartPutChar('0');
+       }
+  }
+}
 
 void main(void) {
   volatile int i;
@@ -28,14 +44,35 @@ void main(void) {
   // Setting P1.0 & P1.6 to low
   P1OUT &= ~(LED1 | LED2);
 
+  //init functions
+  inerDelay_us(100);
   init_uart();
+  inerDelay_us(100);
+  init_spi();
 
   //_BIS_SR(LPM0_bits | GIE); // enable interrupts & set to low power
   _BIS_SR(GIE);          // enable interrupts
+
+  uint8_t out_buffer[2];
+
+  //writing to reg
+  //buffer = SPI_write_reg(WRITE_REG | CONFIG, 0x08);
+
+  // read response
+  SPI_Read(CONFIG, out_buffer);
+
+  uartPutString("status: ", 9);
+  print_binary(out_buffer[0]);
+  uartPutChar(0x0a);//new line
+
+  uartPutString("config: ", 8);
+  print_binary(out_buffer[1]);
+  uartPutChar(0x0a);//new line
+
   // loop forever
   while (1) {
     for (i = 0; i < 0x6000; i++);
     // delay for a while
-    uartPutString("Paul", 4);
+    //uartPutString("Paul", 4);
   }
 }
