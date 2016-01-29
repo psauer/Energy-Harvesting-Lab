@@ -10,13 +10,11 @@
 #include "uart.h"
 #include "config.h"
 #include "rfModule.h"
+#include "spi.h"
 
 //******************************************************************************************
 // Delay for about n us
 //******************************************************************************************
-static void inerDelay_us(int n) {
-  for(;n>0;n--);
-}
 
 static void print_binary(uint8_t n) {
   int i;
@@ -53,23 +51,30 @@ void main(void) {
   //_BIS_SR(LPM0_bits | GIE); // enable interrupts & set to low power
   _BIS_SR(GIE);          // enable interrupts
 
-  uint8_t out_buffer[2];
+  uint8_t out_buffer[3], status;
 
   // read response
-  SPI_read(CONFIG, out_buffer);
+  status = rf_read_reg_byte(CONFIG, out_buffer);
 
   uartPutString("status: ", 9);
-  print_binary(out_buffer[0]);
+  print_binary(status);
   uartPutChar(0x0a);//new line
 
   uartPutString("config: ", 8);
-  print_binary(out_buffer[1]);
+  print_binary(*out_buffer);
   uartPutChar(0x0a);//new line
+
+  // transmitting data
+  out_buffer[0] = 0xff;
+  out_buffer[1] = 0x88;
+  out_buffer[2] = 0xff;
+
 
   // loop forever
   while (1) {
-    for (i = 0; i < 0x6000; i++);
+    for (i = 0; i < 0x600000; i++);
     // delay for a while
     //uartPutString("Paul", 4);
+    TX_packet(out_buffer);
   }
 }

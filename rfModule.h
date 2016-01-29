@@ -10,22 +10,6 @@
 
 #include <inttypes.h>
 
-//==========================NRF24L01============================================
-#define TX_ADR_WIDTH    5     // 5 uints TX address width
-#define RX_ADR_WIDTH    5     // 5 uints RX address width
-#define TX_PLOAD_WIDTH  32    // 32 TX payload
-#define RX_PLOAD_WIDTH  32    // 32 uints TX payload
-//****************************************************************//
-// SPI(nRF24L01) commands
-#define READ_REG        0x00  // Define read command to register
-#define WRITE_REG       0x20  // Define write command to register
-#define RD_RX_PLOAD     0x61  // Define RX payload register address
-#define WR_TX_PLOAD     0xA0  // Define TX payload register address
-#define FLUSH_TX        0xE1  // Define flush TX register command
-#define FLUSH_RX        0xE2  // Define flush RX register command
-#define REUSE_TX_PL     0xE3  // Define reuse TX payload register command
-#define NOP1            0xFF  // Define No Operation, might be used to read status register
-
 //***************************************************//
 // SPI(nRF24L01) registers(addresses)
 #define CONFIG          0x00  // 'Config' register address
@@ -64,12 +48,12 @@
  // STATUS register bits
 #define TX_FULL         0
 
-
-void init_spi(void);
 void init_rfModule (void);
-void SPI_read(uint8_t reg, uint8_t * output_buffer);
-uint8_t SPI_write_reg(uint8_t reg, uint8_t value);
-void transmit_byte (uint8_t data);
+uint8_t rf_write_reg_byte(uint8_t reg, uint8_t data);
+uint8_t rf_write_reg(uint8_t reg, uint8_t* data, uint8_t len);
+uint8_t rf_read_reg_byte(uint8_t reg, uint8_t* buf);
+uint8_t rf_read_reg(uint8_t reg, uint8_t* buf, uint8_t len);
+void TX_packet (uint8_t * data);
 
 
 #endif /* RFMODULE_H_ */
