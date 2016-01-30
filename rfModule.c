@@ -40,6 +40,8 @@ void init_rfModule (void) {
   uint8_t byte;
 //TODO check status byte to see if == TX_FULL
 
+  init_spi();
+
   //setting RF power to be -18dBm, Data rate to 1Mbps
   //byte = (1 << RF_PWR_L) | (1 << RF_PWR_H) | (1 << LNA_HCURR) | (1 << RF_DR);
   byte = (1 << RF_PWR_L) | (1 << RF_PWR_H) | (1 << LNA_HCURR);

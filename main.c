@@ -9,12 +9,8 @@
 #include <inttypes.h>
 #include "uart.h"
 #include "config.h"
-#include "rfModule.h"
-#include "spi.h"
-
-//******************************************************************************************
-// Delay for about n us
-//******************************************************************************************
+//#include "rfModule.h"
+//#include "tmp102.h"
 
 static void print_binary(uint8_t n) {
   int i;
@@ -29,45 +25,32 @@ static void print_binary(uint8_t n) {
   }
 }
 
-void main(void) {
-  volatile int i;
+static void init_sensors(void) {
   // stop watchdog timer
   WDTCTL = WDTPW | WDTHOLD;
   DCOCTL  = 0;
   BCSCTL1 = CALBC1_1MHZ;   // Set range
   DCOCTL  = CALDCO_1MHZ;   // Set DCO step + modulation
 
-  /*
-  // set up GPIO pins P1.0 & P1.6 as output pins
-  P1DIR |= LED1 | LED2;
-  // Setting P1.0 & P1.6 to low
-  P1OUT &= ~(LED1 | LED2);*/
-
   //init functions
   init_uart();
-  init_spi();
-  init_rfModule();
+  //init_rfModule();
+  //init_tmp102();
 
   //_BIS_SR(LPM0_bits | GIE); // enable interrupts & set to low power
   _BIS_SR(GIE);          // enable interrupts
+}
 
+void main(void) {
+  volatile int i;
   uint8_t out_buffer[3], status;
 
-  // read response
-  status = rf_read_reg_byte(CONFIG, out_buffer);
+  init_sensors();
 
   uartPutString("status: ", 9);
   print_binary(status);
   uartPutChar(0x0a);//new line
 
-  uartPutString("config: ", 8);
-  print_binary(*out_buffer);
-  uartPutChar(0x0a);//new line
-
-  // transmitting data
-  out_buffer[0] = 0xff;
-  out_buffer[1] = 0x88;
-  out_buffer[2] = 0xff;
 
 
   // loop forever
@@ -75,6 +58,5 @@ void main(void) {
     for (i = 0; i < 0x600000; i++);
     // delay for a while
     //uartPutString("Paul", 4);
-    TX_packet(out_buffer);
   }
 }

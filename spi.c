@@ -16,13 +16,12 @@ void init_spi(void) {
   // configuring GPIO pins
   P1DIR  |= CS | CE; //setting GPIO CS and CE pins to output
   P1OUT  |= CS; //setting CS to high
-  P1SEL  |= SOMI + SIMO + SCLK;
-  P1SEL2 |= SOMI + SIMO + SCLK;
+  P1SEL  |= SOMI | SIMO | SCLK;
+  P1SEL2 |= SOMI | SIMO | SCLK;
 
   // configuring SPI: 3-pin SPI Mode, 8-bit data, SPI master,
-  UCB0CTL0 |= UCCKPH + UCMSB + UCMST + UCSYNC;
+  UCB0CTL0 |= UCCKPH | UCMSB | UCMST | UCSYNC;
   UCB0CTL1 |= UCSSEL_2;   // SMCLK
-  //UCB0STAT |= UCLISTEN; //enabling loopback mode for testing
 
   // starting state machine
   UCB0CTL1 &= ~UCSWRST;

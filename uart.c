@@ -12,8 +12,8 @@
 #define TXD BIT2
 
 void init_uart(void) {
-  P1SEL  = RXD + TXD;
-  P1SEL2 = RXD + TXD;
+  P1SEL  = RXD | TXD;
+  P1SEL2 = RXD | TXD;
   UCA0CTL1 |= UCSSEL_2;                     // SMCLK
   UCA0BR0 = 104;                            // 1MHz 9600
   UCA0BR1 = 0;                              // 1MHz 9600
@@ -35,7 +35,7 @@ void uartPutString(char * InputBufferPtr, uint32_t NumBytes) {
     InputBufferPtr++;
   }
 }
-
+/*
 //RX interrupt routine
 #pragma vector = USCIAB0RX_VECTOR
 __interrupt void ReceiveInterrupt(void) {
@@ -43,4 +43,4 @@ __interrupt void ReceiveInterrupt(void) {
   uartPutChar(buffer);
 }
 
-
+*/
