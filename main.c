@@ -9,6 +9,7 @@
 #include <inttypes.h>
 #include "uart.h"
 #include "config.h"
+#include "i2c.h"
 //#include "rfModule.h"
 //#include "tmp102.h"
 
@@ -34,8 +35,9 @@ static void init_sensors(void) {
 
   //init functions
   init_uart();
+
   //init_rfModule();
-  //init_tmp102();
+  init_tmp102();
 
   //_BIS_SR(LPM0_bits | GIE); // enable interrupts & set to low power
   _BIS_SR(GIE);          // enable interrupts
@@ -43,15 +45,7 @@ static void init_sensors(void) {
 
 void main(void) {
   volatile int i;
-  uint8_t out_buffer[3], status;
-
   init_sensors();
-
-  uartPutString("status: ", 9);
-  print_binary(status);
-  uartPutChar(0x0a);//new line
-
-
 
   // loop forever
   while (1) {
