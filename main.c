@@ -7,11 +7,11 @@
 
 #include <msp430g2553.h>
 #include <inttypes.h>
+#include <stdio.h>
 #include "uart.h"
 #include "config.h"
-#include "i2c.h"
 //#include "rfModule.h"
-//#include "tmp102.h"
+#include "tmp102.h"
 
 static void print_binary(uint8_t n) {
   int i;
@@ -39,18 +39,21 @@ static void init_sensors(void) {
   //init_rfModule();
   init_tmp102();
 
-  //_BIS_SR(LPM0_bits | GIE); // enable interrupts & set to low power
   _BIS_SR(GIE);          // enable interrupts
 }
 
 void main(void) {
   volatile int i;
+  int temp;
+  char string[30];
   init_sensors();
 
   // loop forever
   while (1) {
     for (i = 0; i < 0x600000; i++);
     // delay for a while
+    temp = tmp102_get_temp();
+    sprintf(string, "%d\n", temp);
     //uartPutString("Paul", 4);
   }
 }

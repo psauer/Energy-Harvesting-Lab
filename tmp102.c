@@ -18,14 +18,16 @@ void init_tmp102(void) {
   buffer[2] = 0x00;
 
   //configuring temperature sensor
-  i2c_write(buffer, 2, 0);
+  i2c_write(buffer, 3);
 }
 
 int tmp102_get_temp(void) {
   uint8_t buff[2];
   int temperature;
+
   i2c_read(TMP102_TEMP_REG, buff, 2);
-  temperature = (int)(buff[0] << 8) + (int)buff[1];
+  temperature = (((int)buff[0]) << 8) | buff[1];
+
   return temperature;
 }
 

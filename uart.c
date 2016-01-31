@@ -25,7 +25,7 @@ void init_uart(void) {
 void uartPutChar(uint8_t c) {
   volatile int i = 0;
 
-  //for(i=0; i<0x20;i++)
+  for(i=0; i<0x20;i++)
   while (!(IFG2 & UCA0TXIFG));
   UCA0TXBUF = c;
 }
