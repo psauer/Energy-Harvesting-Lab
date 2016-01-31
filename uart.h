@@ -10,6 +10,6 @@
 
 void init_uart(void);
 void uartPutChar(char c);
-void uartPutString(char * InputBufferPtr, uint32_t NumBytes);
+void uartPutString(char * InputBufferPtr);
 
 #endif /* UART_H_ */

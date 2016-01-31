@@ -45,7 +45,7 @@ static void init_sensors(void) {
 void main(void) {
   volatile int i;
   int temp;
-  char string[30];
+  char string[40];
   init_sensors();
 
   // loop forever
@@ -53,7 +53,7 @@ void main(void) {
     for (i = 0; i < 0x600000; i++);
     // delay for a while
     temp = tmp102_get_temp();
-    sprintf(string, "%d\n", temp);
+    sprintf(string, "temperature = %d\n", temp);
     //uartPutString("Paul", 4);
   }
 }

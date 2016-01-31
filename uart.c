@@ -30,10 +30,8 @@ void uartPutChar(uint8_t c) {
   UCA0TXBUF = c;
 }
 
-void uartPutString(char * InputBufferPtr, uint32_t NumBytes) {
-  uint32_t i;
-
-  for (i = 0; i < NumBytes; i++) {
+void uartPutString(char * InputBufferPtr) {
+  while (*InputBufferPtr != 0x00) {
     uartPutChar(InputBufferPtr[0]);
     InputBufferPtr++;
   }
