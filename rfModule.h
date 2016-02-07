@@ -37,23 +37,39 @@
 #define RX_PW_P5        0x16  // 'RX payload width, pipe5' register address
 #define FIFO_STATUS     0x17  // 'FIFO Status Register' register address
 
-/// RF_SETUP register bits
-#define RF_DR           3
-#define RF_PWR_H        2
-#define RF_PWR_L        1
-#define LNA_HCURR       0
  // CONFIG register bits
-#define EN_CRC          3
-#define PWR_UP          1
+#define EN_CRC          0x08
+#define CRCO            0x04
+#define PWR_UP          0x02
+
+/// RF_SETUP register bits
+#define RF_DR           0x08
+#define RF_PWR_H        0x04
+#define RF_PWR_L        0x02
+
  // STATUS register bits
-#define TX_FULL         0
+
+#define RX_DR           0x40
+#define TX_DS           0x20
+#define MAX_RT          0x10
+#define TX_FULL         0x01
+
+//SETUP_RETR
+#define ARD_3           0x08
+#define ARD_2           0x04
+#define ARD_1           0x02
+#define ARD_0           0x01
+#define ARC_3           0x08
+#define ARC_2           0x04
+#define ARC_1           0x02
+#define ARC_0           0x01
 
 void init_rfModule (void);
 uint8_t rf_write_reg_byte(uint8_t reg, uint8_t data);
 uint8_t rf_write_reg(uint8_t reg, uint8_t* data, uint8_t len);
 uint8_t rf_read_reg_byte(uint8_t reg, uint8_t* buf);
 uint8_t rf_read_reg(uint8_t reg, uint8_t* buf, uint8_t len);
-void TX_packet (uint8_t * data);
+uint8_t TX_packet (uint8_t * data);
 
 
 #endif /* RFMODULE_H_ */
