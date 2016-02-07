@@ -43,7 +43,7 @@
 #define PWR_UP          0x02
 
 /// RF_SETUP register bits
-#define RF_DR           0x08
+#define RF_DR_HIGH      0x08
 #define RF_PWR_H        0x04
 #define RF_PWR_L        0x02
 

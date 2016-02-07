@@ -93,10 +93,16 @@ void init_rfModule (void) {
   __delay_cycles(5000);
   //setting RF power to be -18dBm, Data rate to 1Mbps
   //byte = (1 << RF_PWR_L) | (1 << RF_PWR_H) | (1 << LNA_HCURR) | (1 << RF_DR);
-  rf_write_reg_byte(RF_SETUP, RF_PWR_L | RF_DR);
+  rf_write_reg_byte(RF_SETUP, RF_DR_HIGH | RF_PWR_L);
 
   //setting the TX - RX channel
   rf_write_reg_byte(RF_CH, 76);//choosing channel 76
+
+  //disabling auto ack
+  //rf_write_reg_byte(EN_AA, 0x00);
+
+  //enabling only pipe 0
+  rf_write_reg_byte(EN_RXADDR, 0x01);
 
   //setting up tx pipe
   rf_write_reg(RX_ADDR_P0, tx_address, TX_ADR_WIDTH);
