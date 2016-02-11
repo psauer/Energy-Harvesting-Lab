@@ -27,6 +27,7 @@ static void print_binary(uint8_t n) {
 }
 
 static void init_sensors(void) {
+  char string[40];
   // stop watchdog timer
   WDTCTL = WDTPW | WDTHOLD;
   DCOCTL  = 0;
@@ -43,17 +44,14 @@ static void init_sensors(void) {
 }
 
 void main(void) {
-  volatile int i;
-  int temp;
+  int16_t temp;
   char string[40];
+
   init_sensors();
 
-  // loop forever
-  while (1) {
-    for (i = 0; i < 0x600000; i++);
-    // delay for a while
-    temp = tmp102_get_temp();
-    sprintf(string, "temperature = %d\n", temp);
-    //uartPutString("Paul", 4);
-  }
+  //__delay_cycles(500000);
+  temp = tmp102_get_temp();
+  sprintf(string, "temperature = %d\n", temp);
+  uartPutString(string);
+
 }

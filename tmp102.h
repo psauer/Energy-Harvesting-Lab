@@ -42,6 +42,6 @@
 #define TMP102_CONVERSION               0.0625
 
 void init_tmp102(void);
-int tmp102_get_temp(void);
+int16_t tmp102_get_temp(void);
 
 #endif /* TMP102_H_ */
