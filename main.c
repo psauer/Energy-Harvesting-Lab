@@ -48,10 +48,11 @@ void main(void) {
   char string[40];
 
   init_sensors();
-
-  //__delay_cycles(500000);
+  while(1) {
+  __delay_cycles(500000);
   temp = tmp102_get_temp();
   sprintf(string, "temperature = %d\n", temp);
   uartPutString(string);
+  }
 
 }
