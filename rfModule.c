@@ -93,13 +93,13 @@ void init_rfModule (void) {
   __delay_cycles(5000);
   //setting RF power to be -18dBm, Data rate to 1Mbps
   //byte = (1 << RF_PWR_L) | (1 << RF_PWR_H) | (1 << LNA_HCURR) | (1 << RF_DR);
-  rf_write_reg_byte(RF_SETUP, RF_DR_HIGH | RF_PWR_L);
+  rf_write_reg_byte(RF_SETUP, RF_DR_HIGH | RF_PWR_H | RF_PWR_L);
 
   //setting the TX - RX channel
   rf_write_reg_byte(RF_CH, 76);//choosing channel 76
 
   //disabling auto ack
-  //rf_write_reg_byte(EN_AA, 0x00);
+  rf_write_reg_byte(EN_AA, 0x00);
 
   //enabling only pipe 0
   rf_write_reg_byte(EN_RXADDR, 0x01);
@@ -231,15 +231,13 @@ uint8_t TX_packet (uint8_t * data) {
   sprintf(string, "Status1 = "BYTETOBINARYPATTERN"\n", BYTETOBINARY(status));
   uartPutString(string);
 
+  while(((status & MAX_RT) != MAX_RT) & ((status & TX_DS) != TX_DS)) {
+    __delay_cycles(5);
+    rf_read_reg_byte(STATUS, &status);
+  }
+
   //data not successfully sent
   if ((status & MAX_RT) == MAX_RT) {
-    /*reuse();
-    __delay_cycles(100);
-    rf_read_reg_byte(STATUS, &status);
-    while (~(status & TX_DS) ) {
-      __delay_cycles(100);
-      rf_read_reg_byte(STATUS, &status);
-    }*/
     rf_write_reg_byte(STATUS, status | MAX_RT);
     flush_tx();
     return 0;
@@ -248,7 +246,9 @@ uint8_t TX_packet (uint8_t * data) {
     return 1;
   }
 
-
+  /*if (status & TX_FULL) {
+    flush_tx();
+  }*/
   /*while(~(status & (TX_DS | MAX_RT))) {
     sprintf(string, "Status = "BYTETOBINARYPATTERN"\n", BYTETOBINARY(status));
     uartPutString(string);
