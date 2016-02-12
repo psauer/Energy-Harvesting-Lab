@@ -33,12 +33,12 @@ static void init_sensors(void) {
   DCOCTL  = 0;
   BCSCTL1 = CALBC1_1MHZ;   // Set range
   DCOCTL  = CALDCO_1MHZ;   // Set DCO step + modulation
-
+  init_tmp102();
   //init functions
   init_uart();
 
   //init_rfModule();
-  init_tmp102();
+
 
   _BIS_SR(GIE);          // enable interrupts
 }
@@ -48,11 +48,12 @@ void main(void) {
   char string[40];
 
   init_sensors();
-  while(1) {
-  __delay_cycles(500000);
+  //while(1) {
+  //__delay_cycles(500000);
   temp = tmp102_get_temp();
   sprintf(string, "temperature = %d\n", temp);
   uartPutString(string);
-  }
+  //init_tmp102();
+  //}
 
 }

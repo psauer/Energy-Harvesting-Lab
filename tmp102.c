@@ -11,26 +11,33 @@
 #include <stdio.h>
 #include "uart.h"
 
-char string[40];
+static uint8_t buff[3];
 
-void init_tmp102(void) {
-  uint8_t buffer[3];
-
-  init_i2c(TMP102_ADDRESS);
+static void set_OS_mode(void) {
   //configuring the temperature sensor to use OS: one shot mode & shutdown
-  buffer[0] = TMP102_CONFIG_REG;
-  buffer[1] = TMP102_OS | TMP102_SD;
-  buffer[2] = 0x00;
+  buff[0] = TMP102_CONFIG_REG;
+  buff[1] = TMP102_OS | TMP102_SD;
+  buff[2] = 0x00;
 
   //configuring temperature sensor
-  i2c_write(buffer, 3);
-  uartPutString(string);
+  i2c_write(buff, 3);
+}
+void init_tmp102(void) {
+
+  init_i2c(TMP102_ADDRESS);
+  //configuring the temperature sensor to shutdown mode
+  buff[0] = TMP102_CONFIG_REG;
+  buff[1] = TMP102_SD;
+  buff[2] = 0x00;
+
+  //configuring temperature sensor
+  i2c_write(buff, 3);
 }
 
 int16_t tmp102_get_temp(void) {
-  uint8_t buff[2];
   int16_t temperature;
 
+  //set_OS_mode();
   i2c_read(TMP102_TEMP_REG, buff, 2);
   //note: temperature is only 12 bits and 2's compliment
   temperature = (buff[0] << 8) | buff[1];
