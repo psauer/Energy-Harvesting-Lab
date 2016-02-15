@@ -1,9 +1,13 @@
+*.cproject
+*.project
 *.hex
 *.elf
 *.eep
 *.swp
-*.o
-*.txt
+/.settings
+/Debug
+
+
 
 
 
