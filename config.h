@@ -26,10 +26,10 @@
 #define LED2 BIT6
 
 // spi pin def
-#define SCLK    BIT5 // P1.5: SPI Clock
+#define SCLK    BIT4 // P1.4: SPI Clock
 #define SOMI    BIT1 // P1.1: SPI SOMI (Slave Out, Master In)
 #define SIMO    BIT2 // P1.2: SPI SIMO (Slave In, Master Out)
-#define CE      BIT4 // P1.4: CE (Chip Enable)
+#define CE      BIT0 // P1.0: CE (Chip Enable)
 #define CS      BIT3 // P1.3: CS (Chip Select)
 
 // I2C pin def

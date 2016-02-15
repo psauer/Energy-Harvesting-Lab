@@ -20,43 +20,24 @@ static void init_sensors(void) {
   BCSCTL1 = CALBC1_1MHZ;   // Set range
   DCOCTL  = CALDCO_1MHZ;   // Set DCO step + modulation
 
-  //init_tmp102();
-  //init_uart();
   init_rfModule();
+  init_tmp102();
 
   _BIS_SR(GIE);          // enable interrupts
 }
 
-void main(void) {
+int main(void) {
   int16_t temp;
-  char string[40];
+  uint8_t out_buffer;
 
   init_sensors();
-  //temp = tmp102_get_temp();
-  //sprintf(string, "temperature = %d\n", temp);
-  //uartPutString(string);
-
+  temp = tmp102_get_temp();
 
   // transmitting data
-  out_buffer = 0x00;
+  out_buffer = (uint8_t)temp;
 
-  // loop forever
-  while (1) {
-    // delay for a while
-    __delay_cycles(500000);
+  TX_packet(&out_buffer);
 
-    status = TX_packet(&out_buffer);
-    if(status == 0x00) {
-      sprintf(string, "Tx failed\n");
-      uartPutString(string);
-    } else {
-      sprintf(string, "Tx!!!\n");
-      uartPutString(string);
-    }
-    out_buffer++;
-    if (out_buffer == 255) {
-      out_buffer = 0;
-    }
-  }
-
+  _BIS_SR(SCG1+SCG0+OSCOFF+CPUOFF);
+  return 0;
 }

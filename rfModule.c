@@ -44,56 +44,13 @@ static uint8_t flush_tx(void) {
   return status;
 }
 
-static uint8_t reuse(void) {
-  uint8_t status;
+void init_rfModule(void) {
 
-  rf_read_reg_byte(STATUS, &status);
-  rf_write_reg_byte(STATUS, status | MAX_RT);
-  SET_CS_LOW;           // CSN low, initialize SPI communication...
-  status = SPI_transfer( REUSE_TX_PL );
-  SET_CS_HIGH;         // CSN high, terminate SPI communication
-
-  SET_CE_LOW
-  __delay_cycles(15);
-  SET_CE_HIGH
-
-  return status;
-}
-/*
-static void print_setup(void) {
-  uint8_t buffer[6];
-  char string[40];
-
-  rf_read_reg_byte(RF_SETUP, buffer);
-  sprintf(string, "RF_SETUP = "BYTETOBINARYPATTERN"\n", BYTETOBINARY(buffer[0]));
-  uartPutString(string);
-
-  rf_read_reg_byte(RF_CH, buffer);
-  sprintf(string, "channel = %d\n", buffer[0]);
-  uartPutString(string);
-
-  rf_read_reg(RX_ADDR_P0, buffer, 5);
-  sprintf(string, "rx address = 0x%x%x%x%x%x\n", buffer[0], buffer[1],
-                                      buffer[2], buffer[3], buffer[4]);
-  uartPutString(string);
-
-  rf_read_reg(TX_ADDR, buffer, 5);
-  sprintf(string, "tx address = 0x%x%x%x%x%x\n", buffer[0], buffer[1],
-                                      buffer[2], buffer[3], buffer[4]);
-  uartPutString(string);
-
-  rf_read_reg_byte(RX_PW_P0, buffer);
-  sprintf(string, "RX Payload width= 0x%x\n", buffer[0]);
-  uartPutString(string);
-
-}*/
-
-void init_rfModule (void) {
-  __delay_cycles(5000);
+  init_spi();
 
   //setting RF power to be -18dBm, Data rate to 1Mbps
   //byte = (1 << RF_PWR_L) | (1 << RF_PWR_H) | (1 << LNA_HCURR) | (1 << RF_DR);
-  rf_write_reg_byte(RF_SETUP, RF_DR_HIGH | RF_PWR_H | RF_PWR_L);
+  rf_write_reg_byte(RF_SETUP, RF_DR_HIGH );
 
   //setting the TX - RX channel
   rf_write_reg_byte(RF_CH, 76);//choosing channel 76
@@ -111,19 +68,17 @@ void init_rfModule (void) {
   rf_write_reg_byte(RX_PW_P0, TX_PLOAD_WIDTH);
 
   //setting 1500us delay between retransmissions and 15 retries
-  rf_write_reg_byte(SETUP_RETR, ARC_0 | ARC_1 | ARC_2 | ARC_3 | ARD_1);
+  rf_write_reg_byte(SETUP_RETR, ARC_0 | ARC_1 | ARC_2 | ARC_3);
 
   //clearing status bits
   rf_write_reg_byte(STATUS, MAX_RT | TX_DS | RX_DR);
 
   flush_tx();
 
-  //print_setup();
-
   //setting power up to 1
   rf_write_reg_byte(CONFIG, EN_CRC | PWR_UP | CRCO);
-  //delay 5ms
-  __delay_cycles(5000);
+  //delay for a bit
+ //__delay_cycles(200);
 }
 
 uint8_t rf_write_reg_byte(uint8_t reg, uint8_t data) {
@@ -201,35 +156,16 @@ uint8_t rf_read_reg(uint8_t reg, uint8_t* buf, uint8_t len) {
 
 uint8_t TX_packet (uint8_t * data) {
   uint8_t status;
-  char string[50];
-
-  rf_read_reg_byte(FIFO_STATUS, &status);
-  //sprintf(string, "FIFO STATUS  = "BYTETOBINARYPATTERN"\n", BYTETOBINARY(status));
-  //uartPutString(string);
 
   rf_write_payload(W_TX_PAYLOAD, data, 1);      // Writes data to TX payload
 
-  rf_read_reg_byte(FIFO_STATUS, &status);
-  //sprintf(string, "FIFO STATUS  = "BYTETOBINARYPATTERN"\n", BYTETOBINARY(status));
-  //uartPutString(string);
-
-  rf_read_reg_byte(STATUS, &status);
-  //sprintf(string, "Status  = "BYTETOBINARYPATTERN"\n", BYTETOBINARY(status));
-  //uartPutString(string);
-
   SET_CE_HIGH
   //10 us delay
-  __delay_cycles(85000);
+  //__delay_cycles(100);
   SET_CE_LOW
-  __delay_cycles(1000);
-
-  rf_read_reg_byte(FIFO_STATUS, &status);
-  //sprintf(string, "FIFO STATUS2  = "BYTETOBINARYPATTERN"\n", BYTETOBINARY(status));
-  //uartPutString(string);
+  //__delay_cycles(1000);
 
   rf_read_reg_byte(STATUS, &status);
-  //sprintf(string, "Status1 = "BYTETOBINARYPATTERN"\n", BYTETOBINARY(status));
-  //uartPutString(string);
 
   while(((status & MAX_RT) != MAX_RT) & ((status & TX_DS) != TX_DS)) {
     __delay_cycles(5);
@@ -246,16 +182,6 @@ uint8_t TX_packet (uint8_t * data) {
     return 1;
   }
 
-  /*if (status & TX_FULL) {
-    flush_tx();
-  }*/
-  /*while(~(status & (TX_DS | MAX_RT))) {
-    sprintf(string, "Status = "BYTETOBINARYPATTERN"\n", BYTETOBINARY(status));
-    uartPutString(string);
-
-    rf_read_reg_byte(STATUS, &status);
-    inerDelay_us(50000);
-  }*/
     return 0;
 }
 

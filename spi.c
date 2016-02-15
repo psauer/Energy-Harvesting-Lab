@@ -11,28 +11,28 @@
 void init_spi(void) {
 
   // Set UCSWRST
-  UCB0CTL1 = UCSWRST;
+  UCA0CTL1 = UCSWRST;
 
   // configuring GPIO pins
-  P1DIR  |= CS | CE; //setting GPIO CS and CE pins to output
-  P1OUT  |= CS; //setting CS to high
-  P1SEL  |= SOMI | SIMO | SCLK;
-  P1SEL2 |= SOMI | SIMO | SCLK;
+  P1DIR  = CS | CE; //setting GPIO CS and CE pins to output
+  P1OUT  = CS; //setting CS to high
+  P1SEL  = SOMI | SIMO | SCLK;
+  P1SEL2 = SOMI | SIMO | SCLK;
 
   // configuring SPI: 3-pin SPI Mode, 8-bit data, SPI master,
-  UCB0CTL0 |= UCCKPH | UCMSB | UCMST | UCSYNC;
-  UCB0CTL1 |= UCSSEL_2;   // SMCLK
+  UCA0CTL0 |= UCCKPH | UCMSB | UCMST | UCSYNC;
+  UCA0CTL1 |= UCSSEL_2;   // SMCLK
 
   // starting state machine
-  UCB0CTL1 &= ~UCSWRST;
+  UCA0CTL1 &= ~UCSWRST;
 }
 
 uint8_t SPI_transfer(uint8_t data) {
-  UCB0TXBUF = data;
+  UCA0TXBUF = data;
 
   // wait for TX
-  while (!(IFG2 & UCB0TXIFG));
+  while (!(IFG2 & UCA0TXIFG));
 
-  return UCB0RXBUF;
+  return UCA0RXBUF;
 }
 

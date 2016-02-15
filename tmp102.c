@@ -13,15 +13,6 @@
 
 static uint8_t buff[3];
 
-static void set_OS_mode(void) {
-  //configuring the temperature sensor to use OS: one shot mode & shutdown
-  buff[0] = TMP102_CONFIG_REG;
-  buff[1] = TMP102_OS | TMP102_SD;
-  buff[2] = 0x00;
-
-  //configuring temperature sensor
-  i2c_write(buff, 3);
-}
 void init_tmp102(void) {
 
   init_i2c(TMP102_ADDRESS);
@@ -37,7 +28,6 @@ void init_tmp102(void) {
 int16_t tmp102_get_temp(void) {
   int16_t temperature;
 
-  //set_OS_mode();
   i2c_read(TMP102_TEMP_REG, buff, 2);
   //note: temperature is only 12 bits and 2's compliment
   temperature = (buff[0] << 8) | buff[1];
